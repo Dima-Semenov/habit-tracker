@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Header, Loader } from '@/components';
 import { Box, ClientOnly, ScrollArea } from '@chakra-ui/react';
 import { UserProvider } from '@/provider';
