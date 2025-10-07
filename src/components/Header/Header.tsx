@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import { ColorModeButton } from '../ui/color-mode';
 import Link from 'next/link';
+import Profile from '../Profile/Profile';
 
 function Header() {
   return (
@@ -23,19 +24,22 @@ function Header() {
               Home
             </ChakraLink>
           </Link>
+          <Link href='/habits'>
+            <ChakraLink fontWeight={500} as='h4'>
+              My habits
+            </ChakraLink>
+          </Link>
           <Link href='/group'>
             <ChakraLink fontWeight={500} as='h4'>
               Groups
             </ChakraLink>
           </Link>
-          <Link href='/'>
-            <ChakraLink fontWeight={500} as='h4'>
-              My habits
-            </ChakraLink>
-          </Link>
         </Flex>
 
-        <ColorModeButton />
+        <Flex gap={2} alignItems='center'>
+          <ColorModeButton />
+          <Profile />
+        </Flex>
       </Flex>
       <Separator />
     </Box>

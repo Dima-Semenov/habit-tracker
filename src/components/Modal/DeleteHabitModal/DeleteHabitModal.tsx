@@ -1,29 +1,28 @@
 import React, { FC } from 'react';
-import Modal from './Modal';
 import { Button, CloseButton, Dialog } from '@chakra-ui/react';
-import { deleteHabitGroup } from '@/actions/habitGroups.actions';
-import { toaster } from '../ui/toaster';
-import { HabitGroupType } from '@/types/habitGroupTypes';
 import { GENERAL_ERROR_MESSAGE } from '@/constants';
+import { toaster } from '@/components/ui/toaster';
+import Modal from '../Modal';
+import { HabitType } from '@/types/habitTypes';
+import { deleteHabit } from '@/actions/habit.actions';
 
 interface DeleteGroupModalProps {
   isShow: boolean;
   handleHideModal: () => void;
-  group: HabitGroupType;
+  habit: HabitType;
 }
 
-const DeleteGroupModal: FC<DeleteGroupModalProps> = ({
+const DeleteHabitModal: FC<DeleteGroupModalProps> = ({
   isShow,
   handleHideModal,
-  group,
+  habit,
 }) => {
-  const handleDeleteHabitGroup = async () => {
+  const handleDeleteHabit = async () => {
     try {
-      const result = await deleteHabitGroup(group._id);
-
+      const result = await deleteHabit(habit._id);
       if (result.success) {
         toaster.create({
-          title: `Habit group was deleted successfully`,
+          title: `Habit was deleted successfully`,
           type: 'success',
         });
       }
@@ -46,7 +45,7 @@ const DeleteGroupModal: FC<DeleteGroupModalProps> = ({
   return (
     <Modal isShow={isShow}>
       <Dialog.Header>
-        <Dialog.Title>Are you sure you want to delete this group?</Dialog.Title>
+        <Dialog.Title>Are you sure you want to delete this habit?</Dialog.Title>
       </Dialog.Header>
 
       <Dialog.Footer justifyContent='center'>
@@ -54,7 +53,7 @@ const DeleteGroupModal: FC<DeleteGroupModalProps> = ({
           Cancel
         </Button>
 
-        <Button onClick={handleDeleteHabitGroup} colorPalette='red'>
+        <Button onClick={handleDeleteHabit} colorPalette='red'>
           Delete
         </Button>
       </Dialog.Footer>
@@ -66,4 +65,4 @@ const DeleteGroupModal: FC<DeleteGroupModalProps> = ({
   );
 };
 
-export default DeleteGroupModal;
+export default DeleteHabitModal;

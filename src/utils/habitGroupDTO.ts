@@ -1,19 +1,21 @@
-import { HabitGroupDocument, HabitGroupType } from '@/types';
+import { HabitGroupDocument, HabitGroupType } from '@/types/habitGroupTypes';
+import { habitDTO } from './habitDTO';
+import { HabitDocument } from '@/types/habitTypes';
 
-export const habitGroupDTO = (habit: HabitGroupDocument): HabitGroupType => {
+export const habitGroupDTO = (
+  habitGroup: HabitGroupDocument,
+  habits: HabitDocument[] = []
+): HabitGroupType => {
   return {
-    id: habit._id.toString(),
-    title: habit.title,
-    description: habit.description,
+    id: habitGroup._id.toString(),
+    title: habitGroup.title,
+    description: habitGroup.description,
     userId: '1',
-    // userId: habit.userId.toString(),
-    icon: habit.icon,
-    createdAt: habit.createdAt.toISOString(),
-    updatedAt: habit.updatedAt.toISOString(),
-    habitsCount: 0,
+    // userId: habitGroup.userId.toString(),
+    icon: habitGroup.icon,
+    createdAt: habitGroup.createdAt.toISOString(),
+    updatedAt: habitGroup.updatedAt.toISOString(),
+    habitsCount: habits.length,
+    habits: habits.map(habitDTO),
   };
-};
-
-export const habitGroupListDTO = (habits: HabitGroupDocument[]): HabitGroupType[] => {
-  return habits.map(habitGroupDTO);
 };

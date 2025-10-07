@@ -12,12 +12,13 @@ const HabitGroupSchema = new Schema(
       required: [true, 'Description is required'],
       minlength: [5, 'Description must be at least 5 characters long'],
     },
-    // userId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true,
-    // },
-    icon: {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+      required: true,
+      index: true,
+    },
+    emoji: {
       type: String,
       default: '📌',
     },
@@ -27,5 +28,11 @@ const HabitGroupSchema = new Schema(
   }
 );
 
+HabitGroupSchema.virtual('habits', {
+  ref: 'Habit',
+  localField: '_id',
+  foreignField: 'groupId',
+});
+
 export const HabitGroupModel =
-  models.HabitGroups || model('HabitGroups', HabitGroupSchema);
+  models.HabitGroup || model('HabitGroup', HabitGroupSchema);
