@@ -17,4 +17,3 @@ export const useModal = (defaultValue = false) => {
 
   return { isShow, handleShowModal, handleHideModal, handleToggle };
 };
-

@@ -34,7 +34,7 @@ const HabitPage = () => {
 
     return (
       <>
-        <Flex gap={5} wrap='wrap'>
+        <Flex gap={5} wrap='wrap' justifyContent='space-evenly'>
           <For each={habits}>
             {(habit) => <HabitCard key={habit._id} habit={habit} />}
           </For>
@@ -46,7 +46,7 @@ const HabitPage = () => {
   }, [isLoading, habits]);
 
   return (
-    <Box h='full' position='relative'>
+    <Box>
       <HabitActionBar onFilterHabits={onFilterHabits} />
 
       {renderContent()}

@@ -37,11 +37,17 @@ const HabitCard: FC<HabitCardProps> = ({ habit }) => {
 
   return (
     <Card.Root
-      w='400px'
+      w='full'
+      maxW='400px'
       borderColor={isGoodHabit ? 'green.400' : 'red.400'}
-      h='fit-content'
     >
-      <Card.Header flexDirection='row' justifyContent='space-between' gap={2}>
+      <Card.Header
+        flexDirection='row'
+        justifyContent='space-between'
+        gap={2}
+        px={{ base: 4, sm: 6 }}
+        pt={{ base: 4, sm: 6 }}
+      >
         <HStack>
           <Text textStyle='5xl'>{isGoodHabit ? '🌱' : '🚫'}</Text>
           <Card.Title>{habit.title}</Card.Title>
@@ -49,7 +55,7 @@ const HabitCard: FC<HabitCardProps> = ({ habit }) => {
         <HabitOptions habit={habit} />
       </Card.Header>
 
-      <Card.Body>
+      <Card.Body p={{ base: 4, sm: 6 }}>
         {isShowDescription && (
           <Card.Description>Description: {habit.description}</Card.Description>
         )}
@@ -120,7 +126,11 @@ const HabitCard: FC<HabitCardProps> = ({ habit }) => {
       </Card.Body>
 
       {isFooterVisible && (
-        <Card.Footer justifyContent='center'>
+        <Card.Footer
+          justifyContent='center'
+          px={{ base: 4, sm: 6 }}
+          pb={{ base: 4, sm: 6 }}
+        >
           {isShowFollowContent && (
             <Box>
               <Text mb={4} fontWeight='bold' textStyle='xl' textAlign='center'>
