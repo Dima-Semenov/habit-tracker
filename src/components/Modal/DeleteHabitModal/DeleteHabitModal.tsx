@@ -4,7 +4,7 @@ import { GENERAL_ERROR_MESSAGE } from '@/constants';
 import { toaster } from '@/components/ui/toaster';
 import Modal from '../Modal';
 import { HabitType } from '@/types/habitTypes';
-import { deleteHabit } from '@/actions/habit.actions';
+import { useHabitsStore } from '@/store/habitsStore';
 
 interface DeleteGroupModalProps {
   isShow: boolean;
@@ -17,24 +17,19 @@ const DeleteHabitModal: FC<DeleteGroupModalProps> = ({
   handleHideModal,
   habit,
 }) => {
+  const { deleteHabit } = useHabitsStore();
+
   const handleDeleteHabit = async () => {
     try {
-      const result = await deleteHabit(habit._id);
-      if (result.success) {
-        toaster.create({
-          title: `Habit was deleted successfully`,
-          type: 'success',
-        });
-      }
-    } catch (error: unknown) {
-      let errorMessage = GENERAL_ERROR_MESSAGE;
-
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
+      await deleteHabit({ habitId: habit._id });
 
       toaster.create({
-        title: errorMessage,
+        title: `Habit was deleted successfully`,
+        type: 'success',
+      });
+    } catch (error) {
+      toaster.create({
+        title: error instanceof Error ? error.message : GENERAL_ERROR_MESSAGE,
         type: 'error',
       });
     } finally {

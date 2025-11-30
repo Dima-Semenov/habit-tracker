@@ -13,7 +13,9 @@ const CreateHabitButton = () => {
         Create a new habit <FiPlus />
       </Button>
 
-      <HabitModal isShow={isShow} handleHideModal={handleHideModal} />
+      {isShow && (
+        <HabitModal isShow={isShow} handleHideModal={handleHideModal} />
+      )}
     </>
   );
 };

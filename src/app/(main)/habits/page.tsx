@@ -3,7 +3,7 @@
 import { EmptyState, Loader } from '@/components';
 import React, { useCallback } from 'react';
 import { ImFileEmpty } from 'react-icons/im';
-import { Box, Flex, For } from '@chakra-ui/react';
+import { Flex, For } from '@chakra-ui/react';
 import {
   CreateHabitButton,
   HabitActionBar,
@@ -46,11 +46,11 @@ const HabitPage = () => {
   }, [isLoading, habits]);
 
   return (
-    <Box>
+    <>
       <HabitActionBar onFilterHabits={onFilterHabits} />
 
       {renderContent()}
-    </Box>
+    </>
   );
 };
 

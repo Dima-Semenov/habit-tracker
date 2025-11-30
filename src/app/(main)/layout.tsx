@@ -21,7 +21,17 @@ export default async function PrivateLayout({
     <UserProvider user={user}>
       <Header />
       <ClientOnly fallback={<Loader useAbsoluteLoader />}>
-        <Box p='4' h='calc(100vh - 53px)' as='section' overflowY='scroll'>
+        <Box
+          p='4'
+          as='section'
+          maxW='7xl'
+          mx='auto'
+          w='full'
+          h='calc(100dvh - 53px)'
+          overflow='scroll'
+          display='flex'
+          flexDirection='column'
+        >
           {children}
         </Box>
       </ClientOnly>

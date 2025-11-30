@@ -7,7 +7,7 @@ interface ModalProps {
 }
 
 const Modal: FC<ModalProps> = ({ isShow, children }) => (
-  <Dialog.Root placement='center' scrollBehavior='inside' open={isShow}>
+  <Dialog.Root placement='center' open={isShow}>
     <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner p={4}>

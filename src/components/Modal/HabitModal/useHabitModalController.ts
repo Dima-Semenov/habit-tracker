@@ -1,7 +1,7 @@
-import { createHabit, updateHabit } from '@/actions/habit.actions';
 import { getHabitGroups } from '@/actions/habitGroups.actions';
 import { toaster } from '@/components/ui/toaster';
 import { GENERAL_ERROR_MESSAGE } from '@/constants';
+import { useHabitsStore } from '@/store/habitsStore';
 import { useUserStore } from '@/store/userStore';
 import { HabitGroupType } from '@/types/habitGroupTypes';
 import { HabitType, HabitTypes } from '@/types/habitTypes';
@@ -37,6 +37,7 @@ export const useHabitModalController = ({
   editHabit,
 }: UseHabitModalControllerArgs) => {
   const { user } = useUserStore();
+  const { updateHabit, createHabit } = useHabitsStore();
 
   const { register, handleSubmit, formState, control, watch, reset } = useForm({
     defaultValues: DEFAULT_FORM_DATA,
@@ -99,37 +100,34 @@ export const useHabitModalController = ({
     try {
       const groupIdValue = Boolean(data.groupId[0]) ? data.groupId[0] : null;
 
-      let result = null;
       let toasterTitle = '';
 
       if (isEditMode && editHabit?._id) {
-        result = await updateHabit(editHabit._id, {
+        const dataToUpdate = {
           ...data,
           groupId: groupIdValue,
-        });
+        };
+
+        await updateHabit({ habitId: editHabit._id, data: dataToUpdate });
         toasterTitle = 'The habit was updated successfully';
       } else {
-        result = await createHabit({
+        const createHabitData = {
           ...data,
           groupId: groupIdValue,
           userId,
-        });
+        };
+
+        await createHabit({ createHabitData });
         toasterTitle = 'The habit was created successfully';
       }
 
-      if (result && result.success) {
-        toaster.create({
-          title: toasterTitle,
-          type: 'success',
-        });
-      }
-    } catch (error) {
-      let toasterTitle = 'Something went wrong!';
-      if (error instanceof Error) {
-        toasterTitle = error.message;
-      }
       toaster.create({
         title: toasterTitle,
+        type: 'success',
+      });
+    } catch (error) {
+      toaster.create({
+        title: error instanceof Error ? error.message : GENERAL_ERROR_MESSAGE,
         type: 'error',
       });
     } finally {

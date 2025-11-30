@@ -52,17 +52,7 @@ const CurrentHabitsGroup: FC<CurrentHabitsGroupProps> = ({ params }) => {
 
   return (
     <Box>
-      CurrentHabitsGroup {habitGroup.title}
-      <Flex gap={5}>
-        <For each={habitGroup.habits}>
-          {(habit) => (
-            <Flex direction='column' key={habit.title}>
-              <Box>{habit.title}</Box>
-              <Box>{habit.description}</Box>
-            </Flex>
-          )}
-        </For>
-      </Flex>
+      Will be implemented soon...
     </Box>
   );
 };

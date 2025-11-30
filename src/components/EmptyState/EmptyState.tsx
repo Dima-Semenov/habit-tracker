@@ -24,7 +24,7 @@ const EmptyStateComponent: FC<EmptyStateComponentProps> = ({
 }) => {
   return (
     <Center h='full'>
-      <EmptyState.Root size={size}>
+      <EmptyState.Root size={size} px={{ base: 0, sm: 12 }}>
         <EmptyState.Content>
           {Icon && (
             <EmptyState.Indicator>

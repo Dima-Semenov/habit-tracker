@@ -5,9 +5,10 @@ import bcrypt from 'bcryptjs';
 import { connectToDatabase } from '@/lib/mongodb';
 import { UserModel } from '@/models/UserModel';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Resend } from 'resend';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 const TOKEN_EXPIRY = '30m';
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 interface CreateUserArgs {
   username: string;
@@ -57,17 +58,27 @@ export async function loginUser({
 
     const user = await UserModel.findOne({ email });
     if (!user) {
-      throw new Error('User not found');
+      throw new Error(
+        JSON.stringify({
+          field: 'email',
+          message: 'No user with this email found',
+        })
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid password');
+      throw new Error(
+        JSON.stringify({
+          field: 'password',
+          message: 'Password is incorrect.',
+        })
+      );
     }
 
     const token = jwt.sign(
       { userId: user._id.toString(), email: user.email },
-      JWT_SECRET,
+      process.env.JWT_SECRET!,
       {
         expiresIn: TOKEN_EXPIRY,
       }
@@ -78,7 +89,7 @@ export async function loginUser({
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 днів
+      maxAge: 60 * 60 * 24 * 7,
       path: '/',
     });
 
@@ -87,7 +98,6 @@ export async function loginUser({
       user: JSON.parse(JSON.stringify(user)),
     };
   } catch (error: unknown) {
-    console.log('error: ', error);
     if (error instanceof Error) {
       throw new Error(error.message);
     }
@@ -122,7 +132,7 @@ export async function getCurrentUser() {
     let payload: JwtPayload;
 
     try {
-      payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
+      payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     } catch {
       return null;
     }
@@ -151,7 +161,7 @@ export async function logoutUser() {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 0, // одразу видаляємо
+      maxAge: 0,
       path: '/',
     });
 
@@ -161,5 +171,77 @@ export async function logoutUser() {
       throw new Error(error.message);
     }
     throw new Error('Failed to logoutUser');
+  }
+}
+
+export async function requestPasswordReset({ email }: { email: string }) {
+  const user = await UserModel.findOne({ email });
+
+  if (!user) {
+    throw new Error(
+      JSON.stringify({
+        field: 'email',
+        message: 'No user with this email found',
+      })
+    );
+  }
+
+  const token = jwt.sign(
+    { userId: user._id },
+    process.env.JWT_RESET_PASSWORD_SECRET!,
+    {
+      expiresIn: '15m',
+    }
+  );
+  const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+  await resend.emails.send({
+    from: 'Habit Tracker <onboarding@resend.dev>',
+    to: email,
+    subject: 'Reset your password',
+    html: `
+      <p>You requested to reset your password.</p>
+      <p>Click the link below to set a new password (valid for 15 minutes):</p>
+      <a href="${resetLink}">${resetLink}</a>
+    `,
+  });
+  return { success: true };
+}
+
+export async function resetPassword({
+  token,
+  newPassword,
+}: {
+  token: string;
+  newPassword: string;
+}) {
+  try {
+    let payload: JwtPayload;
+
+    try {
+      payload = jwt.verify(token, process.env.JWT_RESET_PASSWORD_SECRET!) as JwtPayload;
+    } catch {
+      return null;
+    }
+
+    const user = await UserModel.findById(payload.userId);
+    if (!user) {
+      throw new Error(
+        JSON.stringify({
+          field: 'email',
+          message: 'No user with this email found',
+        })
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return { success: true };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error('Failed to resetPassword');
   }
 }

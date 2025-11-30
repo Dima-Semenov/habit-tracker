@@ -1,180 +1,98 @@
 'use client';
 
-import { loginUser, registerAndLoginUser } from '@/actions/userActions';
 import { PasswordInput } from '@/components/ui/password-input';
-import { toaster } from '@/components/ui/toaster';
+import { ROUTER_PATH } from '@/constants/routers';
 import {
   Box,
   Button,
-  Card,
   Field,
-  Flex,
+  Fieldset,
+  HStack,
   Input,
-  SegmentGroup,
-  Stack,
+  InputGroup,
+  Link,
+  Text,
 } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-
-interface FormValues {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-const DEFAULT_FORM_DATA = {
-  username: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-};
+import { FiLock } from 'react-icons/fi';
+import { MdOutlineMailOutline } from 'react-icons/md';
+import { useLoginController } from './useLoginController';
+import { useNavigation } from '@/hooks';
 
 const Login = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({ defaultValues: DEFAULT_FORM_DATA });
-  const router = useRouter();
-  const [formType, setFormType] = useState<'Sign up' | 'Log in'>('Sign up');
-
-  const isLogIn = formType === 'Log in';
-  const cardTitle = isLogIn ? 'Log in' : 'Sign up';
-  const cardDescription = isLogIn
-    ? 'Enter your credentials to access your account.'
-    : 'Fill in the form below to create an account';
-  const cardButonText = isLogIn ? 'Log in' : 'Sign in';
-
-  const onSubmit = async (data: FormValues) => {
-    try {
-      if (isLogIn) {
-        await loginUser({ email: data.email, password: data.password });
-      } else {
-        await registerAndLoginUser({
-          email: data.email,
-          username: data.username,
-          password: data.password,
-        });
-      }
-      router.push('/');
-    } catch (error) {
-      toaster.create({
-        title: error.message,
-        type: 'error',
-      });
-      console.log('Login error: ', error);
-      console.log('Login error message: ', error.message);
-    }
-  };
+  const { onSubmit, formState, register } = useLoginController();
+  const { navigate } = useNavigation();
+  const { errors, isDirty, isSubmitting, isValid } = formState;
 
   return (
-    <Card.Root maxW='sm'>
-      <Card.Header>
-        <Flex justifyContent='center' mb={8}>
-          <SegmentGroup.Root
-            value={formType}
-            onValueChange={(e) => setFormType(e.value)}
-            size='md'
-          >
-            <SegmentGroup.Indicator />
-            <SegmentGroup.Items
-              items={['Sign up', 'Log in']}
-              cursor='pointer'
-            />
-          </SegmentGroup.Root>
-        </Flex>
+    <>
+      <Text textStyle='sx' color='gray.500' mb={4}>
+        Login in your account
+      </Text>
 
-        <Card.Title textAlign='center'>{cardTitle}</Card.Title>
-        <Card.Description>{cardDescription}</Card.Description>
-      </Card.Header>
-      <Card.Body>
-        <Box as='form' onSubmit={handleSubmit(onSubmit)} id='login-form'>
-          <Stack gap='4' w='full'>
-            {!isLogIn && (
-              <Field.Root required invalid={!!errors.username}>
-                <Field.Label>
-                  Username <Field.RequiredIndicator />
-                </Field.Label>
+      <Box as='form' onSubmit={onSubmit} w='full' maxW='md'>
+        <Fieldset.Root>
+          <Fieldset.Content>
+            <Field.Root invalid={!!errors.email}>
+              <Field.Label>Email</Field.Label>
+              <InputGroup startElement={<MdOutlineMailOutline size='20' />}>
                 <Input
-                  placeholder='Create your username'
-                  {...register('username', {
-                    required: 'Username is required',
-                    minLength: {
-                      value: 3,
-                      message: 'Username must be at least 3 characters long',
+                  placeholder='me@example.com'
+                  {...register('email', {
+                    required: 'Email is required',
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                      message: 'Invalid email address',
                     },
                   })}
                 />
-                <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
-              </Field.Root>
-            )}
-
-            <Field.Root required invalid={!!errors.email}>
-              <Field.Label>
-                Email
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                placeholder='me@example.com'
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: 'Invalid email address',
-                  },
-                })}
-              />
+              </InputGroup>
               <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
             </Field.Root>
 
-            <Field.Root invalid={!!errors.password} required>
-              <Field.Label>
-                Password <Field.RequiredIndicator />
-              </Field.Label>
-              <PasswordInput
-                {...register('password', {
-                  required: 'Password is required',
-                  minLength: {
-                    value: 5,
-                    message: 'Password must be at least 5 characters long',
-                  },
-                })}
-              />
-              <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
-            </Field.Root>
-
-            {!isLogIn && (
-              <Field.Root invalid={!!errors.confirmPassword} required>
-                <Field.Label>
-                  Confirm password <Field.RequiredIndicator />
-                </Field.Label>
+            <Field.Root invalid={!!errors.password}>
+              <Field.Label>Password</Field.Label>
+              <InputGroup startElement={<FiLock size='20' />}>
                 <PasswordInput
-                  {...register('confirmPassword', {
-                    validate: (value, formValues) =>
-                      value === formValues.password || 'Passwords do not match',
+                  placeholder='••••••••'
+                  {...register('password', {
+                    required: 'Password is required',
+                    minLength: {
+                      value: 5,
+                      message: 'Password must be at least 5 characters long',
+                    },
                   })}
                 />
-                <Field.ErrorText>
-                  {errors.confirmPassword?.message}
-                </Field.ErrorText>
-              </Field.Root>
-            )}
-          </Stack>
-        </Box>
-      </Card.Body>
-      <Card.Footer justifyContent='center'>
-        <Button variant='solid' form='login-form' type='submit'>
-          {cardButonText}
-        </Button>
-        {isLogIn && (
-          <Button variant='ghost' size='xs'>
+              </InputGroup>
+              <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+            </Field.Root>
+          </Fieldset.Content>
+
+          <Button
+            alignSelf='flex-end'
+            variant='ghost'
+            onClick={() => navigate(ROUTER_PATH.FORGOT_PASSWORD)}
+          >
             Forgot password
           </Button>
-        )}
-      </Card.Footer>
-    </Card.Root>
+          <Button
+            type='submit'
+            alignSelf='flex-end'
+            variant='solid'
+            w='full'
+            disabled={!isDirty || !isValid}
+          >
+            {isSubmitting ? 'Entering...' : 'Sign in'}
+          </Button>
+
+          <HStack justifyContent='center'>
+            <Text color='gray.500' textStyle='sm'>
+              Don&apos;t have an account?
+            </Text>
+            <Link href={ROUTER_PATH.SIGN_UP}>Sign up</Link>
+          </HStack>
+        </Fieldset.Root>
+      </Box>
+    </>
   );
 };
 

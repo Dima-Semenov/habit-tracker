@@ -1,7 +1,7 @@
 import React from 'react';
 
 const CurrentHabit = () => {
-  return <div>CurrentHabit</div>;
+  return <div> Will be implemented soon...</div>;
 };
 
 export default CurrentHabit;

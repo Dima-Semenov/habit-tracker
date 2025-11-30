@@ -2,7 +2,6 @@
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { HabitGroupModel } from '@/models/HabitGroupModel';
-import { habitGroupDTO } from '@/utils/habitGroupDTO';
 import { revalidatePath } from 'next/cache';
 
 export async function getHabitGroups({ userId }: { userId: string }) {
@@ -61,7 +60,7 @@ export async function createHabitGroup(data: {
     revalidatePath('/');
     return {
       success: true,
-      data: habitGroupDTO(newHabitGroup),
+      data: JSON.parse(JSON.stringify(newHabitGroup)),
     };
   } catch (error: unknown) {
     if (error instanceof Error) {

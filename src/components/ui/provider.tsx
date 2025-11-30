@@ -1,15 +1,33 @@
-"use client"
+'use client';
 
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react"
+import { ColorModeProvider, type ColorModeProviderProps } from './color-mode';
+
 import {
-  ColorModeProvider,
-  type ColorModeProviderProps,
-} from "./color-mode"
+  ChakraProvider,
+  createSystem,
+  defaultConfig,
+  defineConfig,
+} from '@chakra-ui/react';
+
+const config = defineConfig({
+  theme: {
+    tokens: {
+      colors: {},
+    },
+  },
+  globalCss: {
+    'input, textarea, select': {
+      fontSize: '16px !important',
+    },
+  },
+});
+
+const system = createSystem(defaultConfig, config);
 
 export function Provider(props: ColorModeProviderProps) {
   return (
-    <ChakraProvider value={defaultSystem}>
+    <ChakraProvider value={system}>
       <ColorModeProvider {...props} />
     </ChakraProvider>
-  )
+  );
 }

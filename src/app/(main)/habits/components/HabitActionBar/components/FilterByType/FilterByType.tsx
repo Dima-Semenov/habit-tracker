@@ -1,5 +1,5 @@
 import { HabitTypes } from '@/types/habitTypes';
-import { For, Tag } from '@chakra-ui/react';
+import { Flex, For, Tag } from '@chakra-ui/react';
 import React, { FC, useState } from 'react';
 
 const HABITS_TYPE_OPTIONS = [
@@ -23,23 +23,25 @@ const FilterByType: FC<FilterByTypeProps> = ({ onFilterHabits }) => {
   };
 
   return (
-    <For each={HABITS_TYPE_OPTIONS}>
-      {(option) => (
-        <Tag.Root
-          key={option.value}
-          size='xl'
-          cursor='pointer'
-          onClick={() => onTagClick(option.value as HabitTypesFilter)}
-          border={
-            type === option.value
-              ? `2px solid var(--chakra-colors-${option.color}-500)`
-              : 'none'
-          }
-        >
-          <Tag.Label>{option.label}</Tag.Label>
-        </Tag.Root>
-      )}
-    </For>
+    <Flex gap={2}>
+      <For each={HABITS_TYPE_OPTIONS}>
+        {(option) => (
+          <Tag.Root
+            key={option.value}
+            size='xl'
+            cursor='pointer'
+            onClick={() => onTagClick(option.value as HabitTypesFilter)}
+            border={
+              type === option.value
+                ? `2px solid var(--chakra-colors-${option.color}-500)`
+                : 'none'
+            }
+          >
+            <Tag.Label>{option.label}</Tag.Label>
+          </Tag.Root>
+        )}
+      </For>
+    </Flex>
   );
 };
 

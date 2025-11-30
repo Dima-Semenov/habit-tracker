@@ -29,7 +29,9 @@ const HabitAddFloatButton = () => {
         </Tooltip>
       </Float>
 
-      <HabitModal isShow={isShow} handleHideModal={handleHideModal} />
+      {isShow && (
+        <HabitModal isShow={isShow} handleHideModal={handleHideModal} />
+      )}
     </>
   );
 };

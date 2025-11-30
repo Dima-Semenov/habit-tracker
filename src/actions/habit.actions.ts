@@ -1,29 +1,19 @@
 'use server';
 
+import moment from 'moment';
 import { connectToDatabase } from '@/lib/mongodb';
 import { HabitModel } from '@/models/HabitModel';
-import { HabitProgressType, HabitTypes } from '@/types/habitTypes';
+import { CreateHabitDataType, HabitProgressType } from '@/types/habitTypes';
 import { revalidatePath } from 'next/cache';
-
-interface CreateHabitInput {
-  title: string;
-  description: string;
-  type: HabitTypes;
-  target: string;
-  groupId: string | null;
-  userId: string;
-}
 
 export async function getHabits({ userId }: { userId: string }) {
   try {
     await connectToDatabase();
 
-    const habits = await HabitModel.find({ userId, isArchived: false })
-      .populate('group')
-      .lean();
+    const habits = await HabitModel.find({ userId }).populate('group').lean();
 
     return JSON.parse(JSON.stringify(habits));
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
     }
@@ -31,7 +21,11 @@ export async function getHabits({ userId }: { userId: string }) {
   }
 }
 
-export async function createHabit(createHabitData: CreateHabitInput) {
+export async function createHabit({
+  createHabitData,
+}: {
+  createHabitData: CreateHabitDataType;
+}) {
   try {
     await connectToDatabase();
 
@@ -43,7 +37,7 @@ export async function createHabit(createHabitData: CreateHabitInput) {
       success: true,
       habit: JSON.parse(JSON.stringify(habit)),
     };
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
     }
@@ -51,17 +45,17 @@ export async function createHabit(createHabitData: CreateHabitInput) {
   }
 }
 
-export async function deleteHabit(id: string) {
+export async function deleteHabit({ habitId }: { habitId: string }) {
   try {
     await connectToDatabase();
-    await HabitModel.deleteOne({ _id: id });
-
+    const deletedHabit = await HabitModel.deleteOne({ _id: habitId });
     revalidatePath('/habits');
 
     return {
       success: true,
+      habit: JSON.parse(JSON.stringify(deletedHabit)),
     };
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
     }
@@ -71,11 +65,9 @@ export async function deleteHabit(id: string) {
 
 export async function updateHabitProgress({
   habitId,
-  date,
   completed,
 }: {
   habitId: string;
-  date: string;
   completed: boolean;
 }) {
   try {
@@ -89,8 +81,8 @@ export async function updateHabitProgress({
     if (habit.isTargetAchieved) {
       throw new Error('Target already achived');
     }
-
-    const targetDate = new Date(date);
+    const today = new Date().toISOString();
+    const targetDate = new Date(today);
     targetDate.setHours(0, 0, 0, 0);
 
     const existing = habit.progress.find((progressItem: { date: Date }) => {
@@ -118,7 +110,7 @@ export async function updateHabitProgress({
     revalidatePath('/habits');
 
     return { success: true, habit: JSON.parse(JSON.stringify(habit)) };
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
     }
@@ -128,15 +120,7 @@ export async function updateHabitProgress({
 
 export async function updateHabit(
   id: string,
-  // data: {
-  //   isArchived?: boolean;
-  //   title?: string;
-  //   description?: string;
-  //   type?: HabitTypes;
-  //   groupId?: string | null;
-  //   target?: string;
-  // }
-  data: Partial<CreateHabitInput> & {
+  data: Partial<CreateHabitDataType> & {
     isArchived?: boolean;
   }
 ) {
@@ -156,12 +140,65 @@ export async function updateHabit(
     revalidatePath('/habits');
     return {
       success: true,
-      data: JSON.parse(JSON.stringify(updatedHabit)),
+      habit: JSON.parse(JSON.stringify(updatedHabit)),
     };
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
     }
     throw new Error('Failed to updateHabit');
+  }
+}
+
+export async function getTodayProgress(userId: string) {
+  try {
+    if (!userId) {
+      return { percent: 0, completed: 0, total: 0 };
+    }
+
+    await connectToDatabase();
+
+    const startOfDay = moment().startOf('day').toDate();
+    const endOfDay = moment().endOf('day').toDate();
+
+    const habits = await HabitModel.find({
+      userId,
+      isArchived: false,
+      isTargetAchieved: false,
+    }).lean();
+
+    if (!habits.length) {
+      return { percent: 0, completed: 0, total: 0 };
+    }
+
+    let completedToday = 0;
+
+    for (const habit of habits) {
+      const doneToday = habit.progress.find((p: HabitProgressType) => {
+        const progressDate = moment(p.date);
+
+        return (
+          p.completed &&
+          progressDate.isBetween(startOfDay, endOfDay, undefined, '[]')
+        );
+      });
+
+      if (doneToday) {
+        completedToday++;
+      }
+    }
+
+    const percent = Math.round((completedToday / habits.length) * 100);
+
+    return {
+      percent,
+      completed: completedToday,
+      total: habits.length,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error('Failed to getTodayProgress');
   }
 }

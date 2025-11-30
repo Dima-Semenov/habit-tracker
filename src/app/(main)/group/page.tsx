@@ -27,16 +27,16 @@ const HabitsGroup = () => {
   }
 
   return (
-    <Flex gap={4} wrap='wrap'>
-      <For each={habitGroups}>
-        {(group) => <GroupCard group={group} key={group._id} />}
-      </For>
-
+    <Flex gap={4} wrap='wrap' justifyContent='space-evenly'>
       <Card.Root w='320px'>
         <Card.Body alignItems='center' justifyContent='center'>
           <CreateGroupButton />
         </Card.Body>
       </Card.Root>
+
+      <For each={habitGroups}>
+        {(group) => <GroupCard group={group} key={group._id} />}
+      </For>
     </Flex>
   );
 };

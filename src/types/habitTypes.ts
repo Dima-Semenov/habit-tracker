@@ -1,4 +1,4 @@
-import { HabitGroupType } from "./habitGroupTypes";
+import { HabitGroupType } from './habitGroupTypes';
 
 export type HabitTypes = 'goodHabit' | 'badHabit';
 
@@ -19,20 +19,14 @@ export interface HabitType {
   progress: HabitProgressType[];
   isArchived: boolean;
   isTargetAchieved: boolean;
-  group: HabitGroupType | null,
+  group: HabitGroupType | null;
 }
 
-export interface HabitDocument extends Document {
-  _id: string;
+export type CreateHabitDataType = {
   title: string;
   description: string;
   type: HabitTypes;
   target: string;
   groupId: string | null;
-  progress: {
-    date: Date;
-    completed: boolean;
-  }[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+  userId: string;
+};

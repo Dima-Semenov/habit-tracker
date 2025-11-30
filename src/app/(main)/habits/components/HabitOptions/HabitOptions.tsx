@@ -54,11 +54,13 @@ const HabitOptions = ({ habit }: { habit: HabitType }) => {
         </Portal>
       </Menu.Root>
 
-      <HabitModal
-        isShow={isShowEdit}
-        handleHideModal={handleHideEditModal}
-        editHabit={habit}
-      />
+      {isShowEdit && (
+        <HabitModal
+          isShow={isShowEdit}
+          handleHideModal={handleHideEditModal}
+          editHabit={habit}
+        />
+      )}
 
       <DeleteHabitModal
         isShow={isShow}

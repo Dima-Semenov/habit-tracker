@@ -6,46 +6,41 @@ import {
   Separator,
   Text,
   Box,
-  IconButton,
-  Drawer,
-  Portal,
-  CloseButton,
-  Button,
+  For,
 } from '@chakra-ui/react';
 import React from 'react';
 import { ColorModeButton } from '../ui/color-mode';
 import Link from 'next/link';
 import Profile from '../Profile/Profile';
-import { IoMenu } from 'react-icons/io5';
-import { useModal, useNavigation } from '@/hooks';
+import ModileDrawer from './ModileDrawer';
+import { NAVIGATION_PAGES } from '@/constants/navigations';
 
-function Header() {
-  const { isShow, handleShowModal, handleHideModal } = useModal();
-  const { navigate } = useNavigation();
-
+const Header = () => {
   return (
     <Box as='header'>
-      <Flex justify='space-between' align='center' px='4' py='2'>
+      <Flex
+        justify='space-between'
+        align='center'
+        px='4'
+        py='2'
+        maxW='7xl'
+        mx='auto'
+        w='full'
+      >
         <Link href='/'>
           <Text fontWeight={900}>Habit Tracker</Text>
         </Link>
 
         <Flex gap={10} hideBelow='md'>
-          <Link href='/'>
-            <ChakraLink fontWeight={500} as='h4'>
-              Home
-            </ChakraLink>
-          </Link>
-          <Link href='/habits'>
-            <ChakraLink fontWeight={500} as='h4'>
-              My habits
-            </ChakraLink>
-          </Link>
-          <Link href='/group'>
-            <ChakraLink fontWeight={500} as='h4'>
-              Groups
-            </ChakraLink>
-          </Link>
+          <For each={NAVIGATION_PAGES}>
+            {(page) => (
+              <Link href={page.href} key={page.id}>
+                <ChakraLink fontWeight={500} as='h4'>
+                  {page.title}
+                </ChakraLink>
+              </Link>
+            )}
+          </For>
         </Flex>
 
         <Flex gap={2} alignItems='center' hideBelow='md'>
@@ -53,105 +48,11 @@ function Header() {
           <Profile />
         </Flex>
 
-        <IconButton
-          variant='ghost'
-          size='sm'
-          css={{
-            _icon: {
-              width: '5',
-              height: '5',
-            },
-          }}
-          aria-label='Profile'
-          onClick={handleShowModal}
-        >
-          <IoMenu />
-        </IconButton>
-
-        <Drawer.Root open={isShow} onOpenChange={handleHideModal}>
-          <Portal>
-            <Drawer.Backdrop />
-            <Drawer.Positioner>
-              <Drawer.Content>
-                <Drawer.Header>
-                  <ColorModeButton />
-                </Drawer.Header>
-                <Drawer.Body>
-                  <Flex gap={2} flexDirection='column' alignItems='center'>
-                    <ChakraLink
-                      fontWeight={500}
-                      as='h4'
-                      p={4}
-                      w='full'
-                      justifyContent='center'
-                      cursor='pointer'
-                      onClick={() => {
-                        navigate('/');
-                        handleHideModal();
-                      }}
-                    >
-                      Home
-                    </ChakraLink>
-                    <ChakraLink
-                      fontWeight={500}
-                      as='h4'
-                      p={4}
-                      w='full'
-                      justifyContent='center'
-                      cursor='pointer'
-                      onClick={() => {
-                        navigate('/habits');
-                        handleHideModal();
-                      }}
-                    >
-                      My habits
-                    </ChakraLink>
-                    <ChakraLink
-                      fontWeight={500}
-                      as='h4'
-                      p={4}
-                      w='full'
-                      justifyContent='center'
-                      cursor='pointer'
-                      onClick={() => {
-                        navigate('/group');
-                        handleHideModal();
-                      }}
-                    >
-                      Groups
-                    </ChakraLink>
-                    <ChakraLink
-                      fontWeight={500}
-                      as='h4'
-                      p={4}
-                      w='full'
-                      justifyContent='center'
-                      cursor='pointer'
-                      onClick={() => {
-                        navigate('/profile');
-                        handleHideModal();
-                      }}
-                    >
-                      Profile
-                    </ChakraLink>
-                  </Flex>
-                </Drawer.Body>
-                <Drawer.Footer>
-                  <Button variant='outline' color='fg.error'>
-                    Log out
-                  </Button>
-                </Drawer.Footer>
-                <Drawer.CloseTrigger asChild>
-                  <CloseButton size='sm' />
-                </Drawer.CloseTrigger>
-              </Drawer.Content>
-            </Drawer.Positioner>
-          </Portal>
-        </Drawer.Root>
+        <ModileDrawer />
       </Flex>
       <Separator />
     </Box>
   );
-}
+};
 
 export default Header;
